@@ -19,8 +19,49 @@ const DUMMY_MEETUPS = [
     description: "Descripción de mi segunda reunión...",
   },
 ];
-const HomePage = () => {
-  return <MeetupList meetups={DUMMY_MEETUPS} />;
+const HomePage = (props) => {
+  return <MeetupList meetups={props.meetups} />;
 };
+
+/**
+ * Funcion estatica que permite cargar data antes de iniciar el renderizado
+ *         permite realizar cualquier proceso servidor, consultar API o BD
+ *         este proceso se ejecuta del lado del servidor, no del cliente
+ *         retorna siempre un objeto al cliente y debe retornarlo a traves
+ *         del objeto props del componente.
+ *            -- ejecucion en tiempo de compilacion --
+ */
+// export async function getStaticProps() {}
+export const getStaticProps = async () => {
+  return {
+    props: {
+      meetups: DUMMY_MEETUPS,
+    },
+    //revalidate: 2, //opcional - para llamar al servicio nuevamente un tiempo n (ej: 2 seg)
+  };
+};
+
+/**
+ * Funcion dinamica que permite cargar data antes de iniciar el renderizado
+ *         permite realizar cualquier proceso servidor, consultar API o BD
+ *         este proceso se ejecuta del lado del servidor, no del cliente
+ *         retorna siempre un objeto al cliente y debe retornarlo a traves
+ *         del objeto props del componente.
+ *            -- ejecucion para cada solicitud entrante --
+ *  context:  Parametro a enviar al servicio - opcional
+ */
+// export const getServerSideProps = async (context) => {
+//   const req = context.req;
+//   const res = context.res;
+
+//   console.log("Request:", req);
+//   console.log("Response:", res);
+
+//   return {
+//     props: {
+//       meetups: DUMMY_MEETUPS,
+//     },
+//   };
+// };
 
 export default HomePage;
