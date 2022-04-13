@@ -1,26 +1,23 @@
-import React from "react";
+import React, { Fragment } from "react";
+import Head from "next/head";
+
+import { MongoClient } from "mongodb";
+
 import MeetupList from "../components/meetups/MeetupList";
 
-const DUMMY_MEETUPS = [
-  {
-    id: "m1",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/d/d3/Stadtbild_M%C3%BCnchen.jpg",
-    title: "Mi primera reunión",
-    address: "Cualquier dirección 10 5463 ...",
-    description: "Descripción de mi primera reunión...",
-  },
-  {
-    id: "m2",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/d/d3/Stadtbild_M%C3%BCnchen.jpg",
-    title: "Mi segunda reunión",
-    address: "Cualquier dirección 5 1234 ...",
-    description: "Descripción de mi segunda reunión...",
-  },
-];
 const HomePage = (props) => {
-  return <MeetupList meetups={props.meetups} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>React-NextJS -> Reuniones</title>
+        <meta
+          name="description"
+          content="Explore una enorme lista de reuniones de React altamente activas"
+        />
+      </Head>
+      <MeetupList meetups={props.meetups} />;
+    </Fragment>
+  );
 };
 
 /**
@@ -33,9 +30,29 @@ const HomePage = (props) => {
  */
 // export async function getStaticProps() {}
 export const getStaticProps = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://wlopera:q5RUFrSLjphXk6q1@cluster0.z3d0z.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const meetups = await meetupsCollection.find().toArray();
+
+  console.log("Consulta Mongodb:", meetups);
+
+  client.close();
+
   return {
     props: {
-      meetups: DUMMY_MEETUPS,
+      meetups: meetups.map((meetup) => ({
+        id: meetup._id.toString(),
+        title: meetup.title,
+        image: meetup.image,
+        address: meetup.address,
+        description: meetup.description,
+      })),
     },
     //revalidate: 2, //opcional - para llamar al servicio nuevamente un tiempo n (ej: 2 seg)
   };

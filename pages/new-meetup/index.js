@@ -1,5 +1,7 @@
 //our-domain/new-meetup
 import React, { Fragment } from "react";
+import Head from "next/head";
+
 import { useRouter } from "next/router";
 
 import NewMeetupForm from "../../components/meetups/NewMeetupForm";
@@ -23,7 +25,18 @@ const NewMeetupPage = () => {
     router.push("/");
   };
 
-  return <NewMeetupForm onAddMeetup={addMeetupHandler} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>Agregar uneva reunión</title>
+        <meta
+          name="description"
+          content="Agregue sus propias reuniones y cree oportunidades increíbles para establecer contactos"
+        />
+      </Head>
+      <NewMeetupForm onAddMeetup={addMeetupHandler} />
+    </Fragment>
+  );
 };
 
 export default NewMeetupPage;

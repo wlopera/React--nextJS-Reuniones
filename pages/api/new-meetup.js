@@ -18,7 +18,7 @@ const handler = async (req, res) => {
 
     const result = await meetupsCollection.insertOne(data);
 
-    console.log("Resultado MOngodb:", result);
+    console.log("CRear registro Mongodb:", result);
 
     client.close();
 

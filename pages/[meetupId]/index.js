@@ -1,32 +1,49 @@
-import React from "react";
+import React, { Fragment } from "react";
+import Head from "next/head";
+
+import { MongoClient, ObjectId } from "mongodb";
+
 import MeetupDetail from "../../components/meetups/MeetupDetail";
 
 const MeetupDetails = (props) => {
   return (
-    <MeetupDetail
-      title="Una Primera reunión"
-      image="https://upload.wikimedia.org/wikipedia/commons/d/d3/Stadtbild_M%C3%BCnchen.jpg"
-      address="Vista Hermosa. 34 5674. Ciudad de Panamá. Panamá"
-      description="Descripción de mi porimera reunión..."
-    />
+    <Fragment>
+      <Head>
+        <title>{props.meetupData.title}</title>
+        <meta name="description" content={props.meetupData.description} />
+      </Head>
+      <MeetupDetail
+        title={props.meetupData.title}
+        image={props.meetupData.image}
+        address={props.meetupData.address}
+        description={props.meetupData.description}
+      />
+    </Fragment>
   );
 };
 
 export const getStaticPaths = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://wlopera:q5RUFrSLjphXk6q1@cluster0.z3d0z.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+
+  console.log("Consulta lista de ids - Mongodb:", meetups);
+
+  client.close();
+
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupId: "m1",
-        },
+    paths: meetups.map((meetup) => ({
+      params: {
+        meetupId: meetup._id.toString(),
       },
-      {
-        params: {
-          meetupId: "m2",
-        },
-      },
-    ],
+    })),
   };
 };
 
@@ -34,16 +51,31 @@ export const getStaticProps = async (context) => {
   const meetupId = context.params.meetupId;
 
   console.log("Consultar data del id:", meetupId);
-  // Consultar API o BD con fetch simple
+
+  const client = await MongoClient.connect(
+    "mongodb+srv://wlopera:q5RUFrSLjphXk6q1@cluster0.z3d0z.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const seletedMeetup = await meetupsCollection.findOne({
+    _id: ObjectId(meetupId),
+  });
+
+  console.log("Consulta Mongodb por id:", meetupId, seletedMeetup);
+
+  client.close();
+
   return {
     props: {
       meetupData: {
-        id: meetupId,
-        title: "Una Primera reunión",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/d/d3/Stadtbild_M%C3%BCnchen.jpg",
-        address: "Vista Hermosa. 34 5674. Ciudad de Panamá. Panamá",
-        description: "Descripción de mi porimera reunión...",
+        id: seletedMeetup._id.toString(),
+        title: seletedMeetup.title,
+        image: seletedMeetup.image,
+        address: seletedMeetup.address,
+        description: seletedMeetup.description,
       },
     },
   };
