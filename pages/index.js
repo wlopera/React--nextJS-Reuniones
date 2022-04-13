@@ -54,7 +54,7 @@ export const getStaticProps = async () => {
         description: meetup.description,
       })),
     },
-    //revalidate: 2, //opcional - para llamar al servicio nuevamente un tiempo n (ej: 2 seg)
+    revalidate: 2, //opcional - para llamar al servicio nuevamente un tiempo n (ej: 2 seg)
   };
 };
 
